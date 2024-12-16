@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Email</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f4f4;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns */
+            gap: 20px; /* Space between elements */
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            grid-column: span 2; /* Span both columns */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        button {
+            grid-column: span 2; /* Span both columns */
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Align specific fields to the left or right */
+        .left-col {
+            grid-column: 1; /* Place in the left column */
+        }
+
+        .right-col {
+            grid-column: 2; /* Place in the right column */
+        }
+    </style>
+</head>
+
+<body>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2>Send Email</h2>
+        
+        <!-- Fields on the left -->
+        <div class="left-col">
+            {{ form.recipients.label }}<br>
+            {{ form.recipients }}<br>
+
+            <label for="hr_name">HR Name:</label><br>
+            <input type="text" id="hr_name" name="hr_name"><br>
+
+            {{ form.company.label }}<br>
+            {{ form.company }}<br>
+        </div>
+
+        <!-- Fields on the right -->
+        <div class="right-col">
+            {{ form.subject.label }}<br>
+            {{ form.subject }}<br>
+
+            {{ form.sender_email.label }}<br>
+            {{ form.sender_email }}<br>
+
+            {{ form.body.label }}<br>
+            <textarea id="email_body" name="body" rows="5" readonly></textarea><br>
+
+            {{ form.attachment }}<br>
+            <span id="file-name">
+                {% if form.attachment.value %}{{ form.attachment.value }}{% else %}{% endif %}
+            </span>
+        </div>
+
+        <!-- Submit button spanning both columns -->
+        <button type="submit">Send Email</button>
+    </form>
+
+    <script>
+        const emailTemplate = `Hi HR_NAME,
+
+I hope this message finds you well. I am writing to express my interest in the Software Development Engineer (SDE) role at COMPANYNAME.
+
+I graduated from IIIT Allahabad and have been working as a Software Engineer at Jio Platforms Limited for the past 1.5 years. 
+
+With a strong background in software development and a keen interest in Full Stack Development, I am confident that my skills and experience make me a strong candidate for this position. I have a proven track record of successfully delivering projects and collaborating with cross-functional teams to achieve business goals.
+
+Attached, please find my resume for your review. I sincerely appreciate your consideration of my application and look forward to the opportunity to contribute to the success of COMPANYNAME.
+Thank you for your time and consideration.
+
+Sincerely,
+Nabajit Boro
+8431619640`;
+
+        const companyInput = document.querySelector('input[name="company"]');
+        const hrNameInput = document.getElementById('hr_name');
+        const emailBodyTextarea = document.getElementById('email_body');
+        const fileNameSpan = document.getElementById('file-name');
+
+        function updateEmailBody() {
+            const companyName = companyInput.value || 'COMPANY';
+            const hrName = hrNameInput.value || 'HR';
+
+            emailBodyTextarea.value = emailTemplate
+                .replace(/COMPANYNAME/g, companyName)
+                .replace(/HR_NAME/g, hrName);
+        }
+
+        function updateFileName(input) {
+            const fileName = input.files[0] ? input.files[0].name : 'No file selected';
+            fileNameSpan.innerText = fileName;
+        }
+
+        updateEmailBody();
+
+        if (companyInput) companyInput.addEventListener('input', updateEmailBody);
+        if (hrNameInput) hrNameInput.addEventListener('input', updateEmailBody);
+
+        const attachmentInput = document.querySelector('input[name="attachment"]');
+        if (attachmentInput) {
+            attachmentInput.addEventListener('change', function () {
+                updateFileName(this);
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,1 +1,1 @@
-# EmailSender
+# Email-Sender
